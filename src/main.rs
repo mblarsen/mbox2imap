@@ -1,30 +1,45 @@
 mod mbox;
 mod myimap;
 
-use config;
+use config::{self, Config, ConfigError};
 use imap::types::Flag;
 use mbox::Mbox;
 use myimap::{imap_session, ImapConfig};
 
-fn get_imap_config() -> ImapConfig {
+fn load_config() -> Result<Config, ConfigError> {
     let mut builder = config::Config::default();
-    let settings = builder
+    Ok(builder
         .merge(config::File::with_name("./Settings.toml"))
-        .unwrap();
-    ImapConfig {
-        domain: settings.get_str("domain").expect("Has setting"),
-        port: settings.get_int("port").expect("Has setting") as u16,
-        username: settings.get_str("username").expect("Has setting"),
-        password: settings.get_str("password").expect("Has setting"),
-    }
+        .unwrap()
+        .clone())
 }
 
 fn main() -> std::io::Result<()> {
-    let mbox = Mbox::new("all.mbox");
-    let imap_config = get_imap_config();
-    let mut session = imap_session(imap_config);
+    let config = match load_config() {
+        Ok(config) => config,
+        Err(error) => panic!("{:?}", error),
+    };
+
+    let mbox = Mbox::new(
+        config
+            .get_str("mbox_path")
+            .expect("Mbox path is defined")
+            .as_str(),
+    );
+
+    let mut session = imap_session(ImapConfig {
+        domain: config.get_str("domain").expect("IMAP domain is provided"),
+        port: config.get_int("port").expect("IMAP port is provided") as u16,
+        username: config
+            .get_str("username")
+            .expect("IMAP username is provided"),
+        password: config
+            .get_str("password")
+            .expect("IMAP username is provided"),
+    });
+
     for mail in mbox.into_iter().take(3) {
-        println!("{:?} len: {}", mail.from_line().unwrap(), mail.lines.len());
+        println!("{} len: {}", mail, mail.lines.len());
         match session.append_with_flags("inbox", mail.as_body(), &[Flag::Seen, Flag::Answered]) {
             Err(error) => panic!("{:?}", error),
             _ => println!("Message appended!"),

@@ -213,6 +213,7 @@ dependencies = [
 name = "mbox2imap"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "config",
  "imap",
  "native-tls",
