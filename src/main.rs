@@ -38,11 +38,30 @@ fn main() -> std::io::Result<()> {
             .expect("IMAP username is provided"),
     });
 
-    for mail in mbox.into_iter().take(3) {
-        println!("{} len: {}", mail, mail.lines.len());
-        match session.append_with_flags("inbox", mail.as_body(), &[Flag::Seen, Flag::Answered]) {
+    let mbox_sent = "\\Sent".to_string();
+    let mbox_dest = config
+        .get_str("mbox_dest")
+        .expect("Mbox destination is provided");
+    let my_emails: Vec<String> = config
+        .get_array("my_emails")
+        .expect("My emails is provided")
+        .into_iter()
+        .map(|val| val.into_str().expect("Is email"))
+        .collect();
+    for mail in mbox.into_iter().take(100) {
+        let append_to_box = if my_emails.contains(&mail.from) {
+            &mbox_sent
+        } else {
+            &mbox_dest
+        };
+        println!("{} len: {} → {}", mail, mail.lines.len(), append_to_box);
+        match session.append_with_flags(
+            append_to_box,
+            mail.as_body(),
+            &[Flag::Seen, Flag::Answered],
+        ) {
             Err(error) => panic!("{:?}", error),
-            _ => println!("Message appended!"),
+            _ => (),
         }
     }
     Ok(())
