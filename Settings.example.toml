@@ -1,6 +1,14 @@
-mbox = "all.mbox"
-mailbox = "inbox"
-domain = "imap.fastmail.com"
+# Path to your mbox file
+mbox_path= "all.mbox"
+# Where to "dump" the emails, defaults to \Archive
+mbox_dest = "\\Archive"
+# List of your emails will direct emails from you to \Sent
+my_emails = ["company@example.com"]
+# IMAP domain
+domain = ""
+# IMAP port
 port = 993
-username = "<username>"
-password = "<password>"
+# IMAP username
+username = ""
+# IMAP password
+password = ""
