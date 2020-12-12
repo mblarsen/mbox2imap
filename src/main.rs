@@ -48,17 +48,18 @@ fn main() -> std::io::Result<()> {
         .into_iter()
         .map(|val| val.into_str().expect("Is email"))
         .collect();
-    for mail in mbox.into_iter().take(100) {
+    for mail in mbox.into_iter() {
         let append_to_box = if my_emails.contains(&mail.from) {
             &mbox_sent
         } else {
             &mbox_dest
         };
         println!("{} len: {} → {}", mail, mail.lines.len(), append_to_box);
-        match session.append_with_flags(
+        match session.append_with_flags_and_date(
             append_to_box,
             mail.as_body(),
             &[Flag::Seen, Flag::Answered],
+            Some(mail.date),
         ) {
             Err(error) => panic!("{:?}", error),
             _ => (),
