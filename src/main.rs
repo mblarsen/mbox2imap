@@ -17,6 +17,7 @@
 mod mbox;
 mod myimap;
 
+use chrono::{FixedOffset, TimeZone};
 use config::{self, Config, ConfigError};
 use imap::types::Flag;
 use mbox::Mbox;
@@ -54,6 +55,11 @@ fn main() -> std::io::Result<()> {
             .expect("IMAP username is provided"),
     });
 
+    let tz_offset = FixedOffset::east(
+        config
+            .get_int("tz_offset")
+            .expect("TimeZone offset is defined") as i32,
+    );
     let mbox_sent = "\\Sent".to_string();
     let mbox_dest = config
         .get_str("mbox_dest")
@@ -75,7 +81,7 @@ fn main() -> std::io::Result<()> {
             append_to_box,
             mail.as_body(),
             &[Flag::Seen, Flag::Answered],
-            Some(mail.date),
+            Some(tz_offset.from_local_datetime(&mail.date).unwrap()),
         ) {
             Err(error) => panic!("{:?}", error),
             _ => (),

@@ -131,7 +131,7 @@ dependencies = [
 [[package]]
 name = "imap"
 version = "2.3.0"
-source = "git+https://github.com/mblarsen/rust-imap?branch=feature/append-date#8dab8c86d5830f73adaaa6b176eefa293c30fab7"
+source = "git+https://github.com/mblarsen/rust-imap?branch=feature/append-date#322f73b64fad1ae5529a9ee6cb06a74fb0309dcb"
 dependencies = [
  "base64",
  "bufstream",
