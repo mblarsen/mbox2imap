@@ -1,8 +1,16 @@
 use chrono::NaiveDateTime;
 use regex::Regex;
+use serde::Deserialize;
 use std::fmt::{self, Display, Formatter};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+
+#[derive(Debug, Deserialize)]
+pub struct MboxConfig {
+    pub path: String,
+    pub dest: String,
+    pub emails: Vec<String>,
+}
 
 #[derive(Debug)]
 pub struct Mail {

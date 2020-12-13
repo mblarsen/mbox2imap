@@ -20,61 +20,41 @@ mod myimap;
 use chrono::{FixedOffset, TimeZone};
 use config::{self, Config, ConfigError};
 use imap::types::Flag;
-use mbox::Mbox;
+use mbox::{Mbox, MboxConfig};
 use myimap::{imap_session, ImapConfig};
+use serde::Deserialize;
 
-fn load_config() -> Result<Config, ConfigError> {
-    let mut builder = config::Config::default();
-    Ok(builder
-        .merge(config::File::with_name("./Settings.toml"))
-        .unwrap()
-        .clone())
+#[derive(Debug, Deserialize)]
+struct Settings {
+    mbox: MboxConfig,
+    imap: ImapConfig,
 }
 
-fn main() -> std::io::Result<()> {
-    let config = match load_config() {
-        Ok(config) => config,
-        Err(error) => panic!("{:?}", error),
-    };
+impl Settings {
+    fn load() -> Result<Self, ConfigError> {
+        let mut builder = Config::new();
+        builder.merge(config::File::with_name("./Settings.toml"))?;
+        builder.try_into()
+    }
+}
 
-    let mbox = Mbox::new(
-        config
-            .get_str("mbox_path")
-            .expect("Mbox path is defined")
-            .as_str(),
-    );
+fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    let config = Settings::load()?;
 
-    let mut session = imap_session(ImapConfig {
-        domain: config.get_str("domain").expect("IMAP domain is provided"),
-        port: config.get_int("port").expect("IMAP port is provided") as u16,
-        username: config
-            .get_str("username")
-            .expect("IMAP username is provided"),
-        password: config
-            .get_str("password")
-            .expect("IMAP username is provided"),
-    });
+    let mbox = Mbox::new(&config.mbox.path);
 
-    let tz_offset = FixedOffset::east(
-        config
-            .get_int("tz_offset")
-            .expect("TimeZone offset is defined") as i32,
-    );
+    let mut session = imap_session(&config.imap);
+
+    let tz_offset = FixedOffset::east(config.imap.tz_offset as i32);
+
     let mbox_sent = "\\Sent".to_string();
-    let mbox_dest = config
-        .get_str("mbox_dest")
-        .expect("Mbox destination is provided");
-    let my_emails: Vec<String> = config
-        .get_array("my_emails")
-        .expect("My emails is provided")
-        .into_iter()
-        .map(|val| val.into_str().expect("Is email"))
-        .collect();
+    let my_emails: Vec<String> = config.mbox.emails;
+
     for mail in mbox.into_iter() {
         let append_to_box = if my_emails.contains(&mail.from) {
             &mbox_sent
         } else {
-            &mbox_dest
+            &config.mbox.dest
         };
         println!("{} len: {} → {}", mail, mail.lines.len(), append_to_box);
         match session.append_with_flags_and_date(

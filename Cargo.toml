@@ -12,3 +12,4 @@ config = "0.10.1"
 imap = { git = "https://github.com/mblarsen/rust-imap", branch = "feature/append-date" }
 native-tls = "0.2.6"
 regex = "1"
+serde = { version = "1.0.118", features = ["derive"] }

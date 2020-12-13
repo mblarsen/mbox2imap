@@ -1,16 +1,14 @@
+[mbox]
 # Path to your mbox file
-mbox_path= "all.mbox"
+path= "all.mbox"
 # Where to "dump" the emails, defaults to \Archive
-mbox_dest = "\\Archive"
+dest = "\\Archive"
 # List of your emails will direct emails from you to \Sent
-my_emails = ["company@example.com"]
-# TimeZone offset (seconds)
-tz_offset = 28800
-# IMAP domain
+emails = ["company@example.com"]
+
+[imap]
+tz_offset = 28800 # seconds
 domain = ""
-# IMAP port
 port = 993
-# IMAP username
 username = ""
-# IMAP password
 password = ""
