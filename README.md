@@ -17,3 +17,7 @@ cp Settings.example.toml Settings.toml
 Update settings to your setup.
 
 Then run it!
+
+## Similar efforts
+
+- [mordak/runt](https://github.com/mordak/runt)
