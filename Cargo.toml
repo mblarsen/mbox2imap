@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 chrono = "0.4.19"
 config = "0.10.1"
-imap = { git = "https://github.com/mblarsen/rust-imap", branch = "feature/append-date" }
+imap = "2.4.0"
 native-tls = "0.2.6"
 regex = "1"
 serde = { version = "1.0.118", features = ["derive"] }
