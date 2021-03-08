@@ -20,6 +20,7 @@ mod myimap;
 use chrono::{FixedOffset, TimeZone};
 use config::{self, Config, ConfigError};
 use imap::types::Flag;
+use imap::Error::No;
 use mbox::{Mbox, MboxConfig};
 use myimap::{imap_session, ImapConfig};
 use serde::Deserialize;
@@ -63,7 +64,10 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
             &[Flag::Seen, Flag::Answered],
             Some(tz_offset.from_local_datetime(&mail.date).unwrap()),
         ) {
-            Err(error) => panic!("{:?}", error),
+            Err(error) => match error {
+                No(ref msg) => println!("Skipping: {:?}", msg),
+                _ => panic!("{:?}", error),
+            },
             _ => (),
         }
     }
