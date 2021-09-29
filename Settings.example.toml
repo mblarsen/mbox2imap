@@ -4,11 +4,11 @@ path= "all.mbox"
 # Where to "dump" the emails, defaults to \Archive
 dest = "\\Archive"
 # List of your emails will direct emails from you to \Sent
-emails = ["company@example.com"]
+emails = ["bye@protonmail.com"]
 
 [imap]
 tz_offset = 28800 # seconds
-domain = ""
+domain = "imap.fastmail.com"
 port = 993
 username = ""
 password = ""
