@@ -42,11 +42,11 @@ impl Settings {
 fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     let config = Settings::load()?;
 
-    let mbox = Mbox::new(&config.mbox.path);
+    let mbox = Mbox::new(&config.mbox.path, &config.mbox.date_format);
 
-    let mut session = imap_session(&config.imap);
+    // let mut session = imap_session(&config.imap);
 
-    let tz_offset = FixedOffset::east(config.imap.tz_offset as i32);
+    // let tz_offset = FixedOffset::east(config.imap.tz_offset as i32);
 
     let mbox_sent = "\\Sent".to_string();
     let my_emails: Vec<String> = config.mbox.emails;
@@ -58,18 +58,18 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
             &config.mbox.dest
         };
         println!("{} len: {} → {}", mail, mail.lines.len(), append_to_box);
-        match session.append_with_flags_and_date(
-            append_to_box,
-            mail.as_body(),
-            &[Flag::Seen, Flag::Answered],
-            Some(tz_offset.from_local_datetime(&mail.date).unwrap()),
-        ) {
-            Err(error) => match error {
-                No(ref msg) => println!("Skipping: {:?}", msg),
-                _ => panic!("{:?}", error),
-            },
-            _ => (),
-        }
+        // match session.append_with_flags_and_date(
+        //     append_to_box,
+        //     mail.as_body(),
+        //     &[Flag::Seen, Flag::Answered],
+        //     Some(tz_offset.from_local_datetime(&mail.date).unwrap()),
+        // ) {
+        //     Err(error) => match error {
+        //         No(ref msg) => println!("Skipping: {:?}", msg),
+        //         _ => panic!("{:?}", error),
+        //     },
+        //     _ => (),
+        // }
     }
     Ok(())
 }

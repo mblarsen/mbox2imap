@@ -1,7 +1,7 @@
 [package]
 name = "mbox2imap"
 version = "0.1.0"
-authors = ["Michael Bøcker-Larsen <m19n@pm.me>"]
+authors = ["Michael Bøcker-Larsen <mbl@code.boutique>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -10,6 +10,10 @@ pub struct MboxConfig {
     pub path: String,
     pub dest: String,
     pub emails: Vec<String>,
+    pub dryrun: bool,
+    pub date_format: String,
+    pub before_date: Option<String>,
+    pub after_date: Option<String>,
 }
 
 #[derive(Debug)]
@@ -31,23 +35,27 @@ impl Mail {
     }
 }
 
-#[derive(Debug)]
 pub struct Mbox {
-    from_line_regex: Regex,
-    path: String,
-    buffer: BufReader<File>,
-    left: Vec<String>,
-    lines_read: usize,
+    pub from_line_regex: Regex,
+    pub path: String,
+    pub buffer: BufReader<File>,
+    pub left: Vec<String>,
+    pub lines_read: usize,
+    pub date_format: String,
 }
 
 impl Mbox {
-    pub fn new(path: &str) -> Self {
+    pub fn new(path: &str, date_format: &str) -> Self {
         Self {
-            from_line_regex: Regex::new(r"^From ([^\s]+) (.{24})").unwrap(),
+            // Gmail format
+            from_line_regex: Regex::new(r"^From ([^\s]+) (.{30})").unwrap(),
+            // Protonmail format
+            // from_line_regex: Regex::new(r"^From ([^\s]+) (.{24})").unwrap(),
             path: path.to_owned(),
             buffer: BufReader::new(File::open(path).expect("File exists")),
             left: Vec::new(),
             lines_read: 0,
+            date_format: date_format.to_owned(),
         }
     }
 
@@ -71,6 +79,7 @@ impl std::iter::Iterator for Mbox {
                     .from_line_regex
                     .captures(mail_lines[0].as_str())
                     .expect("Must have from email and date");
+
                 let mail = Mail {
                     lines: mail_lines.clone(),
                     from: captures
@@ -80,8 +89,8 @@ impl std::iter::Iterator for Mbox {
                     date: captures
                         .get(2)
                         .map(|m| {
-                            NaiveDateTime::parse_from_str(m.as_str(), "%a %b %e %T %Y")
-                                .expect("Date is pareable")
+                            NaiveDateTime::parse_from_str(m.as_str(), &self.date_format)
+                                .expect("Date can be parsed")
                         })
                         .expect("Must have date"),
                 };
@@ -99,6 +108,7 @@ impl std::iter::Iterator for Mbox {
                 .from_line_regex
                 .captures(mail_lines[0].as_str())
                 .expect("Must have from email and date");
+            print!("Date {:?}", mail_lines[0].as_str());
             let mail = Mail {
                 lines: mail_lines.clone(),
                 from: captures
@@ -108,8 +118,8 @@ impl std::iter::Iterator for Mbox {
                 date: captures
                     .get(2)
                     .map(|m| {
-                        NaiveDateTime::parse_from_str(m.as_str(), "%a %b %e %T %Y")
-                            .expect("Date is pareable")
+                        NaiveDateTime::parse_from_str(m.as_str(), &self.date_format)
+                            .expect("Date can be parsed")
                     })
                     .expect("Must have date"),
             };
