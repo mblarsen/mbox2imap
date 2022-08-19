@@ -34,7 +34,6 @@ impl Mail {
 #[derive(Debug)]
 pub struct Mbox {
     from_line_regex: Regex,
-    path: String,
     buffer: BufReader<File>,
     left: Vec<String>,
     lines_read: usize,
@@ -44,7 +43,6 @@ impl Mbox {
     pub fn new(path: &str) -> Self {
         Self {
             from_line_regex: Regex::new(r"^From ([^\s]+) (.{24})").unwrap(),
-            path: path.to_owned(),
             buffer: BufReader::new(File::open(path).expect("File exists")),
             left: Vec::new(),
             lines_read: 0,

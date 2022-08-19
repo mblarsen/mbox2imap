@@ -18,7 +18,7 @@ mod mbox;
 mod myimap;
 
 use chrono::{FixedOffset, TimeZone};
-use config::{self, Config, ConfigError};
+use config::{self, Config, ConfigError, File, FileFormat};
 use imap::types::Flag;
 use imap::Error::No;
 use mbox::{Mbox, MboxConfig};
@@ -33,9 +33,8 @@ struct Settings {
 
 impl Settings {
     fn load() -> Result<Self, ConfigError> {
-        let mut builder = Config::new();
-        builder.merge(config::File::with_name("./Settings.toml"))?;
-        builder.try_into()
+        let builder = Config::builder().add_source(File::new("./Settings.toml" , FileFormat::Toml));
+        builder.build()?.try_deserialize()
     }
 }
 
